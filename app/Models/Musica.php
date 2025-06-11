@@ -1,19 +1,45 @@
 <?php
 namespace App\Models;
 
+use Throwable;
+
 class Musica
 {
     private $file = __DIR__ . '/../../data/musicas.json';
 
     private function readData()
     {
-        $json = file_get_contents($this->file);
-        return json_decode($json, true);
+        try {
+            if (!file_exists($this->file)) {
+                throw new \Exception("Arquivo de dados não encontrado.");
+            }
+
+            $json = file_get_contents($this->file);
+            $data = json_decode($json, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception("Erro ao decodificar JSON: " . json_last_error_msg());
+            }
+
+            return $data;
+        } catch (Throwable $e) {
+            throw new \Exception("Erro ao ler dados: " . $e->getMessage());
+        }
     }
 
     private function writeData($data)
     {
-        file_put_contents($this->file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        try {
+            $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+            if ($json === false) {
+                throw new \Exception("Erro ao codificar JSON: " . json_last_error_msg());
+            }
+
+            file_put_contents($this->file, $json);
+        } catch (Throwable $e) {
+            throw new \Exception("Erro ao escrever dados: " . $e->getMessage());
+        }
     }
 
     public function findAll()

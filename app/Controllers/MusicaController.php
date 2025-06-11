@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\Musica;
+use Throwable;
 
 class MusicaController extends AbstractController
 {
@@ -14,49 +15,69 @@ class MusicaController extends AbstractController
 
     public function index()
     {
-        $musicas = $this->model->findAll();
-        $this->jsonResponse($musicas);
+        try {
+            $musicas = $this->model->findAll();
+            $this->jsonResponse($musicas);
+        } catch (Throwable $e) {
+            $this->jsonResponse($e->getMessage(), 500);
+        }
     }
 
     public function view($id)
     {
-        $musica = $this->model->findById($id);
-        if ($musica) {
-            $this->jsonResponse($musica);
-        } else {
-            $this->jsonResponse(['Música não encontrada'], 404);
+        try {
+            $musica = $this->model->findById($id);
+            if ($musica) {
+                $this->jsonResponse($musica);
+            } else {
+                $this->jsonResponse(['error' => 'Música não encontrada'], 404);
+            }
+        } catch (Throwable $e) {
+            $this->jsonResponse($e->getMessage(), 500);
         }
     }
 
     public function add()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['nome']) || !isset($data['artista']) || !isset($data['album'])) {
-            return $this->jsonResponse(['Dados inválidos'], 400);
-        }
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['nome']) || !isset($data['artista']) || !isset($data['album'])) {
+                return $this->jsonResponse(['error' => 'Dados inválidos'], 400);
+            }
 
-        $novaMusica = $this->model->create($data);
-        $this->jsonResponse($novaMusica, 201);
+            $novaMusica = $this->model->create($data);
+            $this->jsonResponse($novaMusica, 201);
+        } catch (Throwable $e) {
+            $this->jsonResponse($e->getMessage(), 500);
+        }
     }
 
     public function edit($id)
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $musicaAtualizada = $this->model->update($id, $data);
-        if ($musicaAtualizada) {
-            $this->jsonResponse($musicaAtualizada);
-        } else {
-            $this->jsonResponse(['Música não encontrada'], 404);
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $musicaAtualizada = $this->model->update($id, $data);
+            if ($musicaAtualizada) {
+                $this->jsonResponse($musicaAtualizada);
+            } else {
+                $this->jsonResponse(['error' => 'Música não encontrada'], 404);
+            }
+        } catch (Throwable $e) {
+            $this->jsonResponse($e->getMessage(), 500);
         }
     }
 
     public function delete($id)
     {
-        $sucesso = $this->model->delete($id);
-        if ($sucesso) {
-            $this->jsonResponse(['message' => 'Música deletada com sucesso.']);
-        } else {
-            $this->jsonResponse(['Música não encontrada'], 404);
+        try {
+            $sucesso = $this->model->delete($id);
+            if ($sucesso) {
+                $this->jsonResponse(['message' => 'Música deletada com sucesso.']);
+            } else {
+                $this->jsonResponse(['error' => 'Música não encontrada'], 404);
+            }
+        } catch (Throwable $e) {
+            $this->jsonResponse($e->getMessage(), 500);
         }
     }
 

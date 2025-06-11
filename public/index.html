@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca de Músicas - API</title>
+</head>
+<body>
+    <h1>Biblioteca de Músicas</h1>
+    <hr>
+    <h2>Adicionar Nova Música</h2>
+    <input type="text" id="nome" placeholder="Nome da Música">
+    <input type="text" id="artista" placeholder="Artista">
+    <input type="text" id="album" placeholder="Álbum">
+    <button onclick="adicionarMusica()">Adicionar</button>
+    <hr>
+    <h2>Listar Todas as Músicas</h2>
+    <button onclick="listarMusicas()">Listar</button>
+    <ul id="listaMusicas"></ul>
+
+    <script>
+        const API_URL = '/musicas';
+
+        async function listarMusicas() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                const lista = document.getElementById('listaMusicas');
+                lista.innerHTML = '';
+
+                result.data.forEach(musica => {
+                    const li = document.createElement('li');
+                    li.textContent = `${musica.id} - ${musica.nome} | ${musica.artista} | ${musica.album}`;
+                    lista.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Erro ao listar músicas:', error);
+            }
+        }
+
+        async function adicionarMusica() {
+            const nome = document.getElementById('nome').value;
+            const artista = document.getElementById('artista').value;
+            const album = document.getElementById('album').value;
+
+            if (!nome || !artista || !album) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, artista, album })
+                });
+
+                const result = await response.json();
+                alert('Música adicionada com sucesso!');
+                listarMusicas();
+            } catch (error) {
+                console.error('Erro ao adicionar música:', error);
+            }
+        }
+
+        async function editarMusica() {
+            const id = document.getElementById('editId').value;
+            const nome = document.getElementById('editNome').value;
+            const artista = document.getElementById('editArtista').value;
+            const album = document.getElementById('editAlbum').value;
+
+            if (!id || !nome || !artista || !album) {
+                alert('Preencha todos os campos de edição!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, artista, album })
+                });
+
+                const result = await response.json();
+                alert('Música editada com sucesso!');
+                listarMusicas();
+            } catch (error) {
+                console.error('Erro ao editar música:', error);
+            }
+        }
+
+        async function deletarMusica() {
+            const id = document.getElementById('deleteId').value;
+
+            if (!id) {
+                alert('Informe o ID da música para deletar!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                alert(result.data.message || 'Música deletada!');
+                listarMusicas();
+            } catch (error) {
+                console.error('Erro ao deletar música:', error);
+            }
+        }
+    </script>
+</body>
+</html>
