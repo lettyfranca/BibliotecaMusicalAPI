@@ -17,6 +17,17 @@
     <h2>Listar Todas as Músicas</h2>
     <button onclick="listarMusicas()">Listar</button>
     <ul id="listaMusicas"></ul>
+    <hr>
+    <h2>Editar Música</h2>
+    <input type="number" id="editId" placeholder="ID da Música">
+    <input type="text" id="editNome" placeholder="Novo Nome">
+    <input type="text" id="editArtista" placeholder="Novo Artista">
+    <input type="text" id="editAlbum" placeholder="Novo Álbum">
+    <button onclick="editarMusica()">Editar</button>
+    <hr>
+    <h2>Deletar Música</h2>
+    <input type="number" id="deleteId" placeholder="ID da Música">
+    <button onclick="deletarMusica()">Deletar</button>
 
     <script>
         const API_URL = '/musicas';
